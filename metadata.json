@@ -1,0 +1,6 @@
+{
+  "name": "Pengelola Tugas Harian",
+  "description": "Aplikasi pengelola tugas harian (To-Do List) yang terintegrasi secara real-time dengan Google Calendar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
