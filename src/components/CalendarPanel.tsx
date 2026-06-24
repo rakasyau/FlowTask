@@ -99,13 +99,13 @@ export default function CalendarPanel({
 
   if (!accessToken) {
     return (
-      <div className="bg-white rounded-3xl border border-slate-200/60 p-5 text-center shadow-xs space-y-3">
-        <div className="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto">
-          <CalendarCheck className="h-5 w-5 text-slate-400" />
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 p-5 text-center shadow-xs space-y-3">
+        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
+          <CalendarCheck className="h-5 w-5 text-slate-400 dark:text-slate-500" />
         </div>
         <div>
-          <h4 className="text-sm font-bold text-slate-700">Google Calendar Terputus</h4>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+          <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200">Google Calendar Terputus</h4>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
             Hubungkan ulang untuk melihat jadwal dan mensinkronkan tugas.
           </p>
         </div>
@@ -121,7 +121,7 @@ export default function CalendarPanel({
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-xl shadow-blue-200/50 space-y-4 overflow-hidden">
+    <div className="h-full flex flex-col bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-xl shadow-blue-200/50 dark:shadow-none space-y-4 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
         <div>

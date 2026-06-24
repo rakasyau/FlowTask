@@ -11,11 +11,11 @@ interface TaskListProps {
 }
 
 const CATEGORY_STYLES: Record<TaskCategory, { dot: string; badge: string }> = {
-  Pekerjaan: { dot: 'bg-blue-500',   badge: 'bg-blue-50 text-blue-700 border-blue-200' },
-  Pribadi:   { dot: 'bg-rose-500',   badge: 'bg-rose-50 text-rose-700 border-rose-200' },
-  Belajar:   { dot: 'bg-violet-500', badge: 'bg-violet-50 text-violet-700 border-violet-200' },
-  Kesehatan: { dot: 'bg-emerald-500',badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  Lainnya:   { dot: 'bg-slate-400',  badge: 'bg-slate-50 text-slate-700 border-slate-200' },
+  Pekerjaan: { dot: 'bg-blue-500',   badge: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30' },
+  Pribadi:   { dot: 'bg-rose-500',   badge: 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/30' },
+  Belajar:   { dot: 'bg-violet-500', badge: 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-900/30' },
+  Kesehatan: { dot: 'bg-emerald-500',badge: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30' },
+  Lainnya:   { dot: 'bg-slate-400',  badge: 'bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-700/50' },
 };
 
 export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, isGoogleSignedIn }: TaskListProps) {
@@ -48,7 +48,7 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
     } catch { return dateStr; }
   };
 
-  const selectClass = "bg-transparent font-bold text-blue-600 focus:outline-none cursor-pointer text-xs";
+  const selectClass = "bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer text-xs [&>option]:bg-white [&>option]:text-slate-800 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-200";
 
   return (
     <div className="h-full flex flex-col space-y-4 overflow-hidden">
@@ -57,7 +57,7 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input type="text" placeholder="Cari tugas..." value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/60 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-400 focus:bg-white dark:focus:bg-slate-950 transition-all" />
         </div>
         <div className="flex flex-wrap gap-2">
           {[
@@ -65,8 +65,8 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
             { label: 'Waktu', value: dateFilter, onChange: (v: string) => setDateFilter(v as any), opts: ['Semua','Hari Ini','Besok','Minggu Ini'] },
             { label: 'Kategori', value: catFilter, onChange: (v: string) => setCatFilter(v), opts: ['Semua','Pekerjaan','Pribadi','Belajar','Kesehatan','Lainnya'] },
           ].map(({ label, value, onChange, opts }) => (
-            <div key={label} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/60 px-3 py-1.5 rounded-xl">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{label}:</span>
+            <div key={label} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 px-3 py-1.5 rounded-xl">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{label}:</span>
               <select value={value} onChange={e => onChange(e.target.value)} className={selectClass}>
                 {opts.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
@@ -79,11 +79,11 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
       <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <Calendar className="h-6 w-6 text-slate-300" />
+            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Calendar className="h-6 w-6 text-slate-300 dark:text-slate-600" />
             </div>
-            <p className="text-sm font-bold text-slate-600">Tidak Ada Tugas</p>
-            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Tidak Ada Tugas</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
               {search || statusFilter !== 'Semua' || catFilter !== 'Semua' || dateFilter !== 'Semua'
                 ? 'Tidak ada tugas yang cocok dengan filter. Coba ubah filter pencarian.'
                 : 'Belum ada tugas. Buat tugas baru dengan tombol di atas!'}
@@ -96,8 +96,8 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
               <div key={task.id}
                 className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all ${
                   task.completed
-                    ? 'bg-slate-50 border-slate-100 opacity-60'
-                    : 'bg-white border-slate-200/60 hover:border-slate-300 hover:shadow-sm'
+                    ? 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/40 opacity-60'
+                    : 'bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm'
                 }`}>
 
                 {/* Toggle */}
@@ -105,36 +105,36 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
                   className="shrink-0 cursor-pointer focus:outline-none"
                   title={task.completed ? 'Tandai Aktif' : 'Tandai Selesai'}>
                   {task.completed ? (
-                    <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                    <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-400 transition-colors" />
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-blue-400 dark:group-hover:border-blue-500 transition-colors" />
                   )}
                 </button>
 
                 {/* Category dot */}
-                <div className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${style.dot}`} />
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-                    <span className={`text-sm font-bold text-slate-800 ${task.completed ? 'line-through text-slate-400' : ''}`}>
+                    <span className={`text-sm font-bold text-slate-800 dark:text-slate-200 ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
                       {task.title}
                     </span>
                     <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wide ${style.badge}`}>
                       {task.category}
                     </span>
                     {task.synced && (
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wide bg-blue-50 text-blue-600 border-blue-200">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wide bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30">
                         GCal
                       </span>
                     )}
                   </div>
                   {task.description && (
-                    <p className={`text-xs text-slate-500 mb-1 truncate ${task.completed ? 'line-through' : ''}`}>
+                    <p className={`text-xs text-slate-500 dark:text-slate-400 mb-1 truncate ${task.completed ? 'line-through text-slate-500 dark:text-slate-600' : ''}`}>
                       {task.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                     <span className="flex items-center gap-0.5">
                       <Calendar className="h-3 w-3" /> {formatDate(task.date)}
                     </span>
@@ -150,11 +150,11 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => onEdit(task)}
-                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer" title="Edit">
+                    className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer" title="Edit">
                     <Edit2 className="h-3.5 w-3.5" />
                   </button>
                   <button onClick={() => onDelete(task)}
-                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer" title="Hapus">
+                    className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all cursor-pointer" title="Hapus">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>

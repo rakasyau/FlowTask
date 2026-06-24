@@ -14,7 +14,7 @@ import StatistikView from './components/StatistikView';
 import {
   CalendarCheck2, LogOut, AlertCircle, CheckCircle, Calendar,
   Sparkles, Info, RefreshCw, LayoutDashboard, Tag, BarChart2,
-  Plus, Menu, X,
+  Plus, Menu, X, Sun, Moon,
 } from 'lucide-react';
 
 type TabId = 'dashboard' | 'kalender' | 'kategori' | 'statistik';
@@ -27,7 +27,25 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
   const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
   const [reconnecting, setReconnecting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
@@ -355,23 +373,23 @@ export default function App() {
   const productivityScore = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 font-sans flex">
+    <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans flex transition-colors duration-200">
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* SIDEBAR */}
-      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col p-5 shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800/80 flex flex-col p-5 shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-200">
               <span className="text-white font-bold text-sm">F</span>
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 font-display">FlowTask</span>
+            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white font-display">FlowTask</span>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -387,78 +405,91 @@ export default function App() {
               onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                 activeTab === id
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                  ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-200'
               }`}>
-              <Icon className={`h-4 w-4 ${activeTab === id ? 'text-blue-600' : 'text-slate-400'}`} />
+              <Icon className={`h-4 w-4 ${activeTab === id ? 'text-blue-600 font-bold' : 'text-slate-400 dark:text-slate-500'}`} />
               {label}
             </button>
           ))}
         </nav>
 
-        {/* Calendar sync status */}
-        <div className="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60 space-y-2.5">
-          <div className="flex items-center gap-2">
-            {token ? (
-              <>
-                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.7)] animate-pulse" />
-                <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">Calendar Aktif</span>
-              </>
-            ) : (
-              <>
-                <div className="w-2 h-2 rounded-full bg-amber-400" />
-                <span className="text-[10px] font-extrabold text-amber-600 uppercase tracking-wider">Calendar Terputus</span>
-              </>
+        {/* Theme Toggle & Status Area */}
+        <div className="mt-auto space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800/60">
+          {/* Theme Toggle Button */}
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/80 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              {theme === 'light' ? <Moon className="h-4 w-4 text-indigo-500" /> : <Sun className="h-4 w-4 text-amber-500" />}
+              Mode {theme === 'light' ? 'Gelap' : 'Terang'}
+            </span>
+            <span className="text-[9px] font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500">Toggle</span>
+          </button>
+
+          {/* Calendar sync status */}
+          <div className="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-200/60 dark:border-slate-800/80 space-y-2">
+            <div className="flex items-center gap-2">
+              {token ? (
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.7)] animate-pulse" />
+                  <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Calendar Aktif</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-500 uppercase tracking-wider">Calendar Off</span>
+                </>
+              )}
+            </div>
+            {!token && (
+              <button onClick={handleReconnectCalendar} disabled={reconnecting}
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60 cursor-pointer">
+                <RefreshCw className={`h-3 w-3 ${reconnecting ? 'animate-spin' : ''}`} />
+                Hubungkan Kalender
+              </button>
             )}
           </div>
-          {!token && (
-            <button onClick={handleReconnectCalendar} disabled={reconnecting}
-              className="w-full flex items-center justify-center gap-1.5 py-2 text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors disabled:opacity-60 cursor-pointer">
-              <RefreshCw className={`h-3 w-3 ${reconnecting ? 'animate-spin' : ''}`} />
-              {reconnecting ? 'Menghubungkan...' : 'Hubungkan Ulang Kalender'}
-            </button>
-          )}
-          <p className="text-[10px] text-slate-400 leading-relaxed">
-            {token ? 'Sinkronisasi Google Calendar aktif.' : 'Masuk ulang untuk mengaktifkan sinkronisasi.'}
-          </p>
-        </div>
 
-        {/* User info */}
-        <div className="mt-3 flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/60">
-          {user.photoURL
-            ? <img src={user.photoURL} alt="Avatar" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full object-cover" />
-            : <div className="w-8 h-8 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{user.displayName?.charAt(0) || 'U'}</div>
-          }
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-800 truncate">{user.displayName || 'Pengguna'}</p>
-            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+          {/* User info */}
+          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/80">
+            {user.photoURL
+              ? <img src={user.photoURL} alt="Avatar" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full object-cover" />
+              : <div className="w-8 h-8 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{user.displayName?.charAt(0) || 'U'}</div>
+            }
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user.displayName || 'Pengguna'}</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{user.email}</p>
+            </div>
+            <button onClick={handleLogout} title="Keluar"
+              className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer shrink-0">
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
-          <button onClick={handleLogout} title="Keluar"
-            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0">
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
         </div>
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-200">
 
         {/* Top bar (mobile) */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors duration-200">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">F</span>
             </div>
-            <span className="font-bold text-slate-900 font-display">FlowTask</span>
+            <span className="font-bold text-slate-900 dark:text-white font-display">FlowTask</span>
           </div>
           {user.photoURL
             ? <img src={user.photoURL} alt="Avatar" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full" />
             : <div className="w-8 h-8 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{user.displayName?.charAt(0)||'U'}</div>
           }
         </div>
+
 
         {/* ── Toasts (always visible regardless of tab) ── */}
         <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none">
@@ -481,10 +512,10 @@ export default function App() {
           {/* ── Shared header ── */}
           <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">
                 Halo, {user.displayName?.split(' ')[0] || 'Pengguna'} 👋
               </p>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-display">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display">
                 {todayIndonesian}
               </h2>
             </div>
@@ -501,12 +532,12 @@ export default function App() {
 
           {/* ── Calendar reconnect banner (all tabs) ── */}
           {!token && (
-            <div className="flex items-center justify-between gap-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+            <div className="flex items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold text-amber-800">Google Calendar Terputus</p>
-                  <p className="text-xs text-amber-600 mt-0.5">Sinkronisasi tidak aktif. Hubungkan ulang untuk mengaktifkan fitur kalender.</p>
+                  <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Google Calendar Terputus</p>
+                  <p className="text-xs text-amber-600 dark:text-amber-500/80 mt-0.5">Sinkronisasi tidak aktif. Hubungkan ulang untuk mengaktifkan fitur kalender.</p>
                 </div>
               </div>
               <button onClick={handleReconnectCalendar} disabled={reconnecting}
@@ -523,27 +554,26 @@ export default function App() {
               {/* Stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
                 {[
-                  { label: 'Total Tugas',   value: tasks.length,                    textColor: 'text-slate-900',   bg: 'bg-white'      },
-                  { label: 'Selesai',        value: completedCount,                  textColor: 'text-emerald-600', bg: 'bg-white'      },
-                  { label: 'Aktif',          value: tasks.length - completedCount,   textColor: 'text-blue-600',    bg: 'bg-white'      },
-                  { label: 'Produktivitas',  value: `${productivityScore}%`,         textColor: 'text-white',       bg: 'bg-blue-600'   },
+                  { label: 'Total Tugas',   value: tasks.length,                    textColor: 'text-slate-900 dark:text-white',   bg: 'bg-white dark:bg-slate-900'      },
+                  { label: 'Selesai',        value: completedCount,                  textColor: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-white dark:bg-slate-900'      },
+                  { label: 'Aktif',          value: tasks.length - completedCount,   textColor: 'text-blue-600 dark:text-blue-400',    bg: 'bg-white dark:bg-slate-900'      },
+                  { label: 'Produktivitas',  value: `${productivityScore}%`,         textColor: 'text-white',       bg: 'bg-blue-600 dark:bg-blue-700'   },
                 ].map(({ label, value, textColor, bg }) => (
-                  <div key={label} className={`${bg} rounded-2xl p-4 border border-slate-200/60 shadow-xs`}>
+                  <div key={label} className={`${bg} rounded-2xl p-4 border ${bg.includes('blue') ? 'border-transparent' : 'border-slate-200/60 dark:border-slate-800/80'} shadow-xs`}>
                     <p className={`text-2xl font-extrabold font-display ${textColor}`}>{value}</p>
-                    <p className={`text-[11px] font-semibold mt-0.5 ${bg === 'bg-blue-600' ? 'text-blue-200' : 'text-slate-400'}`}>{label}</p>
+                    <p className={`text-[11px] font-semibold mt-0.5 ${bg.includes('blue') ? 'text-blue-200 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'}`}>{label}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Main grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
                 {/* Left column: Task list */}
-                <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-slate-200/60 shadow-xs p-5 sm:p-6 lg:h-[620px] flex flex-col overflow-hidden">
+                <div className="lg:col-span-7 xl:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-xs p-5 sm:p-6 lg:h-[620px] flex flex-col overflow-hidden">
                   <div className="flex items-center justify-between mb-5 shrink-0">
-                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       Semua Tugas
-                      <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full font-extrabold border border-blue-100">{tasks.length}</span>
+                      <span className="bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs px-2 py-0.5 rounded-full font-extrabold border border-blue-100 dark:border-blue-900/30">{tasks.length}</span>
                     </h3>
                   </div>
                   <div className="flex-1 overflow-hidden">
@@ -561,35 +591,35 @@ export default function App() {
                   {/* Combined Date picker & Category Stats */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 shrink-0">
                     {/* Date picker */}
-                    <div className="bg-white rounded-3xl border border-slate-200/60 p-4 shadow-xs space-y-3">
-                      <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 p-4 shadow-xs space-y-3">
+                      <p className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" /> Pilih Tanggal
                       </p>
                       <input id="calendar-date-select" type="date" value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200/60 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-blue-500 focus:bg-white transition-all text-xs cursor-pointer" />
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-950 transition-all text-xs cursor-pointer" />
                       <div className="flex gap-2">
                         <button onClick={() => setSelectedDate(todayStr())}
-                          className="flex-1 py-1.5 text-[10px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg transition-colors cursor-pointer">
+                          className="flex-1 py-1.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-100 dark:border-blue-900/30 rounded-lg transition-colors cursor-pointer">
                           Hari Ini
                         </button>
                         <button onClick={() => { const t = new Date(); t.setDate(t.getDate()+1); setSelectedDate(t.toISOString().split('T')[0]); }}
-                          className="flex-1 py-1.5 text-[10px] font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer">
+                          className="flex-1 py-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-lg transition-colors cursor-pointer">
                           Besok
                         </button>
                       </div>
                     </div>
 
                     {/* Category mini stats */}
-                    <div className="bg-slate-900 rounded-3xl p-4 text-white space-y-2.5">
-                      <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Distribusi Kategori</h4>
+                    <div className="bg-slate-900 dark:bg-slate-900/40 rounded-3xl border border-transparent dark:border-slate-800/80 p-4 text-white space-y-2.5">
+                      <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Distribusi Kategori</h4>
                       <div className="grid grid-cols-2 gap-2">
                         {[{l:'Pekerjaan',e:'💼'},{l:'Pribadi',e:'🏠'},{l:'Belajar',e:'📚'},{l:'Kesehatan',e:'❤️'}].map(({l,e})=>(
-                          <div key={l} className="bg-slate-800 border border-slate-700/50 rounded-xl p-2 flex items-center gap-2">
+                          <div key={l} className="bg-slate-800 dark:bg-slate-950/40 border border-slate-700/50 dark:border-slate-800/60 rounded-xl p-2 flex items-center gap-2">
                             <span className="text-sm shrink-0">{e}</span>
                             <div className="min-w-0 flex-1">
-                              <p className="text-[8px] font-bold uppercase tracking-wider text-slate-400 truncate leading-none mb-0.5">{l}</p>
-                              <p className="text-xs font-extrabold text-blue-400 leading-none">{tasks.filter(t=>t.category===l).length}</p>
+                              <p className="text-[8px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate leading-none mb-0.5">{l}</p>
+                              <p className="text-xs font-extrabold text-blue-400 dark:text-blue-300 leading-none">{tasks.filter(t=>t.category===l).length}</p>
                             </div>
                           </div>
                         ))}
@@ -598,9 +628,9 @@ export default function App() {
                   </div>
 
                   {/* Info Banner */}
-                  <div className="bg-blue-50 rounded-3xl border border-blue-100 p-3.5 flex gap-2.5 shrink-0">
+                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-3xl border border-blue-100 dark:border-blue-900/30 p-3.5 flex gap-2.5 shrink-0">
                     <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-blue-700 leading-relaxed">
+                    <p className="text-[10px] text-blue-700 dark:text-blue-400 leading-relaxed">
                       Gunakan tombol <strong>Impor</strong> pada panel kalender untuk menyalin acara Google Calendar menjadi tugas secara otomatis.
                     </p>
                   </div>
@@ -608,6 +638,7 @@ export default function App() {
               </div>
             </>
           )}
+
 
           {/* ══════════════════ TAB: KALENDER ══════════════════ */}
           {activeTab === 'kalender' && (

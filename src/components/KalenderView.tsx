@@ -63,28 +63,28 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-slate-800 dark:text-slate-200">
       {/* Page header */}
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-900 font-display">Kalender</h2>
-        <p className="text-sm text-slate-500 mt-0.5">Lihat dan kelola tugas berdasarkan tanggal</p>
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display">Kalender</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Lihat dan kelola tugas berdasarkan tanggal</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
 
         {/* ── Calendar grid ── */}
-        <div className="xl:col-span-7 bg-white rounded-3xl border border-slate-200/60 shadow-xs p-5 sm:p-6">
+        <div className="xl:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-xs p-5 sm:p-6">
           {/* Month nav */}
           <div className="flex items-center justify-between mb-5">
             <button onClick={prevMonth}
-              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer">
+              className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <h3 className="text-base font-extrabold text-slate-900">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
               {MONTHS_ID[month]} {year}
             </h3>
             <button onClick={nextMonth}
-              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer">
+              className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
@@ -92,7 +92,7 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
           {/* Day headers */}
           <div className="grid grid-cols-7 mb-2">
             {DAYS_ID.map(d => (
-              <div key={d} className="text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider py-1">{d}</div>
+              <div key={d} className="text-center text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider py-1">{d}</div>
             ))}
           </div>
 
@@ -112,10 +112,10 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
                   onClick={() => setSelectedDay(dateStr)}
                   className={`relative flex flex-col items-center py-2 px-1 rounded-2xl transition-all cursor-pointer group ${
                     isSelected
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                      ? 'bg-blue-600 dark:bg-blue-700 text-white shadow-lg shadow-blue-200 dark:shadow-none'
                       : isToday
-                      ? 'bg-blue-50 text-blue-700 font-bold'
-                      : 'hover:bg-slate-50 text-slate-700'
+                      ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   <span className={`text-xs font-bold leading-none ${isSelected ? 'text-white' : ''}`}>{day}</span>
@@ -135,38 +135,38 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-5 pt-4 border-t border-slate-100">
+          <div className="flex flex-wrap gap-3 mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80">
             {Object.entries(CATEGORY_DOT).map(([cat, dot]) => (
               <div key={cat} className="flex items-center gap-1.5">
                 <span className={`w-2 h-2 rounded-full ${dot}`} />
-                <span className="text-[10px] text-slate-500 font-medium">{cat}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{cat}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* ── Day detail panel ── */}
-        <div className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/60 shadow-xs p-5 sm:p-6 space-y-4">
+        <div className="xl:col-span-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-xs p-5 sm:p-6 space-y-4">
           {/* Day header */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Jadwal</p>
-              <h3 className="text-sm font-bold text-slate-900 mt-0.5 leading-tight">{formatSelectedDate(selectedDay)}</h3>
+              <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Jadwal</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-tight">{formatSelectedDate(selectedDay)}</h3>
             </div>
             <button
               onClick={() => onAddTask(selectedDay)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md shadow-blue-200">
+              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md shadow-blue-200 dark:shadow-none">
               <Plus className="h-3.5 w-3.5" /> Tambah
             </button>
           </div>
 
           {selectedTasks.length === 0 ? (
             <div className="py-12 text-center">
-              <div className="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <Clock className="h-5 w-5 text-slate-300" />
+              <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Clock className="h-5 w-5 text-slate-300 dark:text-slate-600" />
               </div>
-              <p className="text-sm font-bold text-slate-500">Tidak ada tugas</p>
-              <p className="text-xs text-slate-400 mt-0.5">Klik "+ Tambah" untuk membuat tugas di hari ini</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400">Tidak ada tugas</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Klik "+ Tambah" untuk membuat tugas di hari ini</p>
             </div>
           ) : (
             <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-0.5">
@@ -174,8 +174,8 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
                 <div key={task.id}
                   className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer group ${
                     task.completed
-                      ? 'bg-slate-50 border-slate-100 opacity-60'
-                      : 'bg-white border-slate-200/60 hover:border-blue-200 hover:bg-blue-50/30'
+                      ? 'bg-slate-50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/40 opacity-60'
+                      : 'bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800/80 hover:border-blue-200 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-950/20'
                   }`}
                   onClick={() => onEdit(task)}
                 >
@@ -183,19 +183,19 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
                     onClick={(e) => { e.stopPropagation(); onToggleComplete(task); }}
                     className="shrink-0 mt-0.5 cursor-pointer focus:outline-none">
                     {task.completed
-                      ? <CheckCircle2 className="h-4 w-4 text-blue-500" />
-                      : <Circle className="h-4 w-4 text-slate-300 group-hover:text-blue-400 transition-colors" />
+                      ? <CheckCircle2 className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                      : <Circle className="h-4 w-4 text-slate-300 dark:text-slate-650 group-hover:text-blue-400 dark:group-hover:text-blue-500 transition-colors" />
                     }
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold text-slate-800 ${task.completed ? 'line-through text-slate-400' : ''}`}>
+                    <p className={`text-xs font-bold text-slate-800 dark:text-slate-200 ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
                       {task.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-slate-400 font-medium flex items-center gap-0.5">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-0.5">
                         <Clock className="h-2.5 w-2.5" /> {formatTime(task.time)}
                       </span>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${CATEGORY_DOT[task.category].replace('bg-','bg-').replace('-500','-100')} text-slate-600`}>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                         {task.category}
                       </span>
                     </div>
@@ -208,18 +208,18 @@ export default function KalenderView({ tasks, onToggleComplete, onEdit, onAddTas
 
           {/* Summary */}
           {selectedTasks.length > 0 && (
-            <div className="flex gap-3 pt-3 border-t border-slate-100">
+            <div className="flex gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
               <div className="flex-1 text-center">
-                <p className="text-lg font-extrabold text-slate-900">{selectedTasks.length}</p>
-                <p className="text-[10px] text-slate-400 font-medium">Total</p>
+                <p className="text-lg font-extrabold text-slate-900 dark:text-white">{selectedTasks.length}</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Total</p>
               </div>
               <div className="flex-1 text-center">
-                <p className="text-lg font-extrabold text-emerald-600">{selectedTasks.filter(t => t.completed).length}</p>
-                <p className="text-[10px] text-slate-400 font-medium">Selesai</p>
+                <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{selectedTasks.filter(t => t.completed).length}</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Selesai</p>
               </div>
               <div className="flex-1 text-center">
-                <p className="text-lg font-extrabold text-blue-600">{selectedTasks.filter(t => !t.completed).length}</p>
-                <p className="text-[10px] text-slate-400 font-medium">Aktif</p>
+                <p className="text-lg font-extrabold text-blue-600 dark:text-blue-400">{selectedTasks.filter(t => !t.completed).length}</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Aktif</p>
               </div>
             </div>
           )}

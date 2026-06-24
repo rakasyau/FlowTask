@@ -59,19 +59,19 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
     onSubmit({ title: title.trim(), description: description.trim(), date, time, duration, category, synced: isGoogleSignedIn ? synced : false, completed });
   };
 
-  const inputClass = "w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all text-sm font-medium";
-  const labelClass = "block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5";
+  const inputClass = "w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-slate-950 transition-all text-sm font-medium [&>option]:bg-white [&>option]:text-slate-800 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-200";
+  const labelClass = "block text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5";
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200/60 p-5 sm:p-6 shadow-xs space-y-5">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 p-5 sm:p-6 shadow-xs space-y-5 text-slate-800 dark:text-slate-200">
       {/* Form header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${initialTask?.id ? 'bg-amber-400 animate-pulse' : 'bg-blue-500'}`} />
-          <h3 className="text-base font-bold text-slate-900">{initialTask?.id ? 'Edit Tugas' : 'Tugas Baru'}</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">{initialTask?.id ? 'Edit Tugas' : 'Tugas Baru'}</h3>
         </div>
         {initialTask?.id && (
-          <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Mode Edit</span>
+          <span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Mode Edit</span>
         )}
       </div>
 
@@ -130,35 +130,35 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
         </div>
 
         {/* Toggles */}
-        <div className="bg-slate-50/70 rounded-2xl border border-slate-100 p-4 space-y-3">
+        <div className="bg-slate-50/70 dark:bg-slate-950/20 rounded-2xl border border-slate-100 dark:border-slate-800/60 p-4 space-y-3">
           {/* Sync toggle */}
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                 <CalendarCheck className="h-3.5 w-3.5 text-blue-500" /> Sinkron ke Google Calendar
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                 {isGoogleSignedIn ? 'Buat acara otomatis di Google Calendar' : 'Login Google untuk mengaktifkan'}
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">
               <input type="checkbox" disabled={!isGoogleSignedIn} checked={synced} onChange={e => setSynced(e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-blue-600 peer-disabled:opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 after:border after:border-slate-300" />
+              <div className="w-9 h-5 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 peer-disabled:opacity-40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 after:border after:border-slate-300 dark:after:border-slate-700" />
             </label>
           </div>
 
           {/* Completed toggle — only in edit mode */}
           {initialTask?.id && (
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200/60">
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-slate-800/80">
               <div>
-                <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Check className="h-3.5 w-3.5 text-emerald-500" /> Tandai Selesai
                 </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">Centang jika tugas sudah diselesaikan</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Centang jika tugas sudah diselesaikan</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer shrink-0">
                 <input type="checkbox" checked={completed} onChange={e => setCompleted(e.target.checked)} className="sr-only peer" />
-                <div className="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 after:border after:border-slate-300" />
+                <div className="w-9 h-5 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-400 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 after:border after:border-slate-300 dark:after:border-slate-700" />
               </label>
             </div>
           )}
@@ -171,7 +171,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
           {category}
         </span>
         {synced && isGoogleSignedIn && (
-          <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full border uppercase tracking-wider bg-blue-50 text-blue-600 border-blue-200">
+          <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full border uppercase tracking-wider bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/30">
             Akan Disinkronkan
           </span>
         )}
@@ -181,7 +181,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
       <div className="flex gap-2 pt-1">
         {onCancel && (
           <button type="button" onClick={onCancel}
-            className="flex-1 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl transition-colors cursor-pointer">
+            className="flex-1 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer">
             Batal
           </button>
         )}
