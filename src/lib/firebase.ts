@@ -1,99 +1,134 @@
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  onAuthStateChanged, 
-  User 
+import {
+  getAuth,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  User,
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import firebaseConfig from '../../firebase-applet-config.json';
+import { getDatabase } from 'firebase/database';
 
-// Initialize Firebase App
+const firebaseConfig = {
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL:       import.meta.env.VITE_FIREBASE_DATABASE_URL,
+};
+
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Auth
 export const auth = getAuth(app);
+export const db = getDatabase(app);
 
-// Initialize Firestore with specific database ID if available
-const dbId = (firebaseConfig as any).firestoreDatabaseId;
-export const db = dbId && dbId !== '(default)' ? getFirestore(app, dbId) : getFirestore(app);
-
-// Configure Google OAuth Provider with Calendar scopes
+// Google OAuth — request Calendar scope
 export const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/calendar.events');
+provider.setCustomParameters({ prompt: 'select_account' });
 
-// Check sessionStorage for cached access token to persist across refreshes
+// ── Token cache (sessionStorage) ──────────────────────────────────────────────
 let cachedAccessToken: string | null = null;
-try {
-  cachedAccessToken = sessionStorage.getItem('google_calendar_access_token');
-} catch (e) {
-  console.warn('sessionStorage is not accessible:', e);
-}
-let isSigningIn = false;
+try { cachedAccessToken = sessionStorage.getItem('google_calendar_access_token'); } catch (_) {}
 
-// Initialize auth state listener
+export const saveToken = (token: string | null) => {
+  cachedAccessToken = token;
+  try {
+    if (token) sessionStorage.setItem('google_calendar_access_token', token);
+    else sessionStorage.removeItem('google_calendar_access_token');
+  } catch (_) {}
+};
+
+export const getAccessToken = (): string | null => cachedAccessToken;
+
+// ── Auth state listener ───────────────────────────────────────────────────────
 export const initAuth = (
-  onAuthSuccess?: (user: User, token: string | null) => void,
-  onAuthFailure?: () => void
+  onAuthSuccess: (user: User, token: string | null) => void,
+  onAuthFailure: () => void
 ) => {
-  return onAuthStateChanged(auth, async (user: User | null) => {
+  return onAuthStateChanged(auth, (user: User | null) => {
     if (user) {
-      // User is authenticated. Pass along whatever token we have (may be null if
-      // the page was refreshed and sessionStorage was cleared — in that case the
-      // user is still logged in but will need to re-authenticate to get a fresh
-      // Calendar access token).
-      if (onAuthSuccess) onAuthSuccess(user, cachedAccessToken);
+      onAuthSuccess(user, cachedAccessToken);
     } else {
-      cachedAccessToken = null;
-      try {
-        sessionStorage.removeItem('google_calendar_access_token');
-      } catch (e) {
-        console.warn('Failed to clear sessionStorage:', e);
-      }
-      if (onAuthFailure) onAuthFailure();
+      saveToken(null);
+      onAuthFailure();
     }
   });
 };
 
-// Sign in function (triggered by button click)
-export const googleSignIn = async (): Promise<{ user: User; accessToken: string } | null> => {
+// ── Sign-in: try popup first, fall back to redirect ──────────────────────────
+export const googleSignIn = async (): Promise<{ user: User; accessToken: string }> => {
   try {
-    isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    
-    if (!credential?.accessToken) {
-      throw new Error('Gagal mendapatkan access token dari Google Auth');
+    if (!credential?.accessToken) throw new Error('NO_TOKEN');
+    saveToken(credential.accessToken);
+    return { user: result.user, accessToken: credential.accessToken };
+  } catch (err: any) {
+    // Popup blocked or not supported → fall back to redirect
+    if (
+      err.code === 'auth/popup-blocked' ||
+      err.code === 'auth/popup-closed-by-user' ||
+      err.code === 'auth/cancelled-popup-request' ||
+      err.message === 'NO_TOKEN'
+    ) {
+      // Store flag so we know a redirect is pending
+      try { sessionStorage.setItem('pending_redirect_signin', '1'); } catch (_) {}
+      await signInWithRedirect(auth, provider);
+      // Page will reload — code below won't run
+      return { user: {} as User, accessToken: '' };
     }
-
-    cachedAccessToken = credential.accessToken;
-    try {
-      sessionStorage.setItem('google_calendar_access_token', cachedAccessToken);
-    } catch (e) {
-      console.warn('Failed to save token to sessionStorage:', e);
-    }
-    return { user: result.user, accessToken: cachedAccessToken };
-  } catch (error: any) {
-    console.error('Sign in error:', error);
-    throw error;
-  } finally {
-    isSigningIn = false;
+    throw err;
   }
 };
 
-// Accessor for the cached token
-export const getAccessToken = async (): Promise<string | null> => {
-  return cachedAccessToken;
+// ── Handle redirect result on page load ──────────────────────────────────────
+// Call this once at app startup. Returns token if redirect just completed.
+export const handleRedirectResult = async (): Promise<{ user: User; accessToken: string } | null> => {
+  try {
+    const pending = sessionStorage.getItem('pending_redirect_signin');
+    sessionStorage.removeItem('pending_redirect_signin');
+
+    const result = await getRedirectResult(auth);
+    if (!result) return null;
+
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential?.accessToken) return null;
+
+    saveToken(credential.accessToken);
+    return { user: result.user, accessToken: credential.accessToken };
+  } catch (err: any) {
+    console.error('[Auth] getRedirectResult error:', err);
+    return null;
+  }
 };
 
-// Log out function
+// ── Reconnect Calendar token (user already authenticated) ────────────────────
+export const reconnectCalendar = async (): Promise<string> => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential?.accessToken) throw new Error('NO_TOKEN');
+    saveToken(credential.accessToken);
+    return credential.accessToken;
+  } catch (err: any) {
+    if (
+      err.code === 'auth/popup-blocked' ||
+      err.code === 'auth/cancelled-popup-request' ||
+      err.message === 'NO_TOKEN'
+    ) {
+      try { sessionStorage.setItem('pending_redirect_signin', '1'); } catch (_) {}
+      await signInWithRedirect(auth, provider);
+      return '';
+    }
+    throw err;
+  }
+};
+
+// ── Logout ────────────────────────────────────────────────────────────────────
 export const logout = async () => {
   await auth.signOut();
-  cachedAccessToken = null;
-  try {
-    sessionStorage.removeItem('google_calendar_access_token');
-  } catch (e) {
-    console.warn('Failed to remove token from sessionStorage:', e);
-  }
+  saveToken(null);
 };
