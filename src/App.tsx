@@ -98,7 +98,7 @@ export default function App() {
   const handleCalendarError = useCallback((err: any): boolean => {
     const msg = err?.message || '';
     if (msg === 'API_DISABLED') {
-      showError('Google Calendar API belum diaktifkan. Buka console.cloud.google.com → APIs & Services → aktifkan "Google Calendar API" untuk project 476206050700.');
+      showError('Google Calendar API belum diaktifkan. Buka Google Cloud Console → APIs & Services → aktifkan "Google Calendar API" untuk project Firebase Anda.');
       return true;
     }
     if (msg === 'TOKEN_EXPIRED' || msg.includes('TOKEN_EXPIRED')) {

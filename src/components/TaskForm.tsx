@@ -79,7 +79,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
         {/* Title */}
         <div>
           <label htmlFor="task-title" className={labelClass}>Judul Tugas</label>
-          <input id="task-title" type="text" required placeholder="Apa yang ingin Anda kerjakan?"
+          <input id="task-title" type="text" required maxLength={200} placeholder="Apa yang ingin Anda kerjakan?"
             value={title} onChange={e => setTitle(e.target.value)} className={inputClass} />
         </div>
 
@@ -124,7 +124,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, isGoogleSign
           <label htmlFor="task-description" className={`${labelClass} flex items-center gap-1`}>
             <AlignLeft className="h-3 w-3" /> Catatan
           </label>
-          <textarea id="task-description" rows={2} placeholder="Tambahkan detail atau catatan..."
+          <textarea id="task-description" rows={2} maxLength={1000} placeholder="Tambahkan detail atau catatan..."
             value={description} onChange={e => setDescription(e.target.value)}
             className={`${inputClass} resize-none`} />
         </div>

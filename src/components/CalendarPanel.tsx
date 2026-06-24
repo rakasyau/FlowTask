@@ -151,7 +151,7 @@ export default function CalendarPanel({
           </div>
           {error.includes('belum diaktifkan') ? (
             <a
-              href="https://console.developers.google.com/apis/api/calendar-json.googleapis.com/overview?project=476206050700"
+              href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-1.5 py-2 bg-amber-400/80 hover:bg-amber-400 text-slate-900 text-xs font-bold rounded-xl transition-colors"

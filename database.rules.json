@@ -3,7 +3,46 @@
     "tasks": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        "$taskId": {
+          ".validate": "newData.hasChildren(['title', 'date', 'time', 'duration', 'category', 'completed', 'synced'])",
+          "title": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 200"
+          },
+          "description": {
+            ".validate": "newData.isString() && newData.val().length <= 1000"
+          },
+          "date": {
+            ".validate": "newData.isString() && newData.val().length == 10 && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)"
+          },
+          "time": {
+            ".validate": "newData.isString() && newData.val().length == 5 && newData.val().matches(/^\\d{2}:\\d{2}$/)"
+          },
+          "duration": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1440"
+          },
+          "category": {
+            ".validate": "newData.isString() && (newData.val() === 'Pekerjaan' || newData.val() === 'Pribadi' || newData.val() === 'Belajar' || newData.val() === 'Kesehatan' || newData.val() === 'Lainnya')"
+          },
+          "completed": {
+            ".validate": "newData.isBoolean()"
+          },
+          "synced": {
+            ".validate": "newData.isBoolean()"
+          },
+          "calendarEventId": {
+            ".validate": "newData.isString() && newData.val().length <= 500"
+          },
+          "userId": {
+            ".validate": "newData.isString() && newData.val() === auth.uid"
+          },
+          "createdAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
       }
     }
   }
