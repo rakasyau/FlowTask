@@ -26,6 +26,7 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [reconnecting, setReconnecting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -195,6 +196,7 @@ export default function App() {
         await update(ref(db, `tasks/${user.uid}/${editingTask.id}`), { ...taskData, calendarEventId });
         showSuccess('Tugas berhasil diperbarui.');
         setEditingTask(null);
+        setIsFormOpen(false);
       } else {
         let calendarEventId: string | null = null;
         if (taskData.synced && token) {
@@ -208,6 +210,7 @@ export default function App() {
           ...taskData, userId: user.uid, calendarEventId, createdAt: Date.now(),
         });
         showSuccess('Tugas baru berhasil ditambahkan!');
+        setIsFormOpen(false);
       }
     } catch (err: any) {
       console.error('Task save error:', err);
@@ -226,10 +229,7 @@ export default function App() {
 
   const handleEditClick = (task: Task) => {
     setEditingTask(task);
-    setActiveTab('dashboard');
-    setTimeout(() => {
-      document.getElementById('task-form-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    setIsFormOpen(true);
   };
 
   const handleDeleteClick = (task: Task) => {
@@ -275,10 +275,7 @@ export default function App() {
       calendarEventId: event.id, createdAt: Date.now(),
     });
     showSuccess(`Acara "${event.summary}" diimpor ke formulir!`);
-    setActiveTab('dashboard');
-    setTimeout(() => {
-      document.getElementById('task-form-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    setIsFormOpen(true);
   };
 
   const handleTokenExpired = () => {
@@ -494,10 +491,7 @@ export default function App() {
             <button
               onClick={() => {
                 setEditingTask(null);
-                setActiveTab('dashboard');
-                setTimeout(() => {
-                  document.getElementById('task-form-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
+                setIsFormOpen(true);
               }}
               className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-200 transition-all cursor-pointer shrink-0"
             >
@@ -527,7 +521,7 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <>
               {/* Stats row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
                 {[
                   { label: 'Total Tugas',   value: tasks.length,                    textColor: 'text-slate-900',   bg: 'bg-white'      },
                   { label: 'Selesai',        value: completedCount,                  textColor: 'text-emerald-600', bg: 'bg-white'      },
@@ -541,73 +535,72 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Main bento grid */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+              {/* Main grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-                {/* Task list */}
-                <div className="xl:col-span-8 bg-white rounded-3xl border border-slate-200/60 shadow-xs p-5 sm:p-6">
-                  <div className="flex items-center justify-between mb-5">
+                {/* Left column: Task list */}
+                <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-slate-200/60 shadow-xs p-5 sm:p-6 lg:h-[620px] flex flex-col overflow-hidden">
+                  <div className="flex items-center justify-between mb-5 shrink-0">
                     <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                       Semua Tugas
                       <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full font-extrabold border border-blue-100">{tasks.length}</span>
                     </h3>
-                    {editingTask && (
-                      <button onClick={() => setEditingTask(null)}
-                        className="text-xs font-bold text-slate-500 hover:text-red-500 flex items-center gap-1 transition-colors">
-                        <X className="h-3.5 w-3.5" /> Batal Edit
-                      </button>
-                    )}
                   </div>
-                  <TaskList tasks={tasks} onToggleComplete={handleToggleComplete} onEdit={handleEditClick} onDelete={handleDeleteClick} isGoogleSignedIn={!!token} />
+                  <div className="flex-1 overflow-hidden">
+                    <TaskList tasks={tasks} onToggleComplete={handleToggleComplete} onEdit={handleEditClick} onDelete={handleDeleteClick} isGoogleSignedIn={!!token} />
+                  </div>
                 </div>
 
-                {/* Right column */}
-                <div className="xl:col-span-4 space-y-4">
-                  <div id="task-form-container" className="scroll-mt-6">
-                    <TaskForm initialTask={editingTask} onSubmit={handleCreateOrUpdateTask} onCancel={editingTask ? () => setEditingTask(null) : undefined} isGoogleSignedIn={!!token} />
+                {/* Right column: Widgets & Kalender */}
+                <div className="lg:col-span-5 xl:col-span-4 lg:h-[620px] flex flex-col justify-between space-y-4">
+                  {/* Calendar panel */}
+                  <div className="lg:h-[300px] xl:h-[320px] shrink-0">
+                    <CalendarPanel accessToken={token} selectedDate={selectedDate} onImportEvent={handleImportEvent} onTokenExpired={handleTokenExpired} onReconnect={handleReconnectCalendar} reconnecting={reconnecting} />
                   </div>
 
-                  <CalendarPanel accessToken={token} selectedDate={selectedDate} onImportEvent={handleImportEvent} onTokenExpired={handleTokenExpired} onReconnect={handleReconnectCalendar} reconnecting={reconnecting} />
-
-                  {/* Date picker */}
-                  <div className="bg-white rounded-3xl border border-slate-200/60 p-5 shadow-xs space-y-3">
-                    <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" /> Pilih Tanggal
-                    </p>
-                    <input id="calendar-date-select" type="date" value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/60 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-blue-500 focus:bg-white transition-all text-sm cursor-pointer" />
-                    <div className="flex gap-2">
-                      <button onClick={() => setSelectedDate(todayStr())}
-                        className="flex-1 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl transition-colors cursor-pointer">
-                        Hari Ini
-                      </button>
-                      <button onClick={() => { const t = new Date(); t.setDate(t.getDate()+1); setSelectedDate(t.toISOString().split('T')[0]); }}
-                        className="flex-1 py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors cursor-pointer">
-                        Besok
-                      </button>
+                  {/* Combined Date picker & Category Stats */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 shrink-0">
+                    {/* Date picker */}
+                    <div className="bg-white rounded-3xl border border-slate-200/60 p-4 shadow-xs space-y-3">
+                      <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" /> Pilih Tanggal
+                      </p>
+                      <input id="calendar-date-select" type="date" value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200/60 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-blue-500 focus:bg-white transition-all text-xs cursor-pointer" />
+                      <div className="flex gap-2">
+                        <button onClick={() => setSelectedDate(todayStr())}
+                          className="flex-1 py-1.5 text-[10px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg transition-colors cursor-pointer">
+                          Hari Ini
+                        </button>
+                        <button onClick={() => { const t = new Date(); t.setDate(t.getDate()+1); setSelectedDate(t.toISOString().split('T')[0]); }}
+                          className="flex-1 py-1.5 text-[10px] font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer">
+                          Besok
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Category mini stats */}
-                  <div className="bg-slate-900 rounded-3xl p-5 text-white space-y-3">
-                    <h4 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Distribusi Kategori</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[{l:'Pekerjaan',e:'💼'},{l:'Pribadi',e:'🏠'},{l:'Belajar',e:'📚'},{l:'Kesehatan',e:'❤️'}].map(({l,e})=>(
-                        <div key={l} className="bg-slate-800 border border-slate-700/50 rounded-2xl p-3">
-                          <span className="text-base">{e}</span>
-                          <div className="flex justify-between items-end mt-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">{l}</span>
-                            <span className="text-sm font-extrabold text-blue-400">{tasks.filter(t=>t.category===l).length}</span>
+                    {/* Category mini stats */}
+                    <div className="bg-slate-900 rounded-3xl p-4 text-white space-y-2.5">
+                      <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Distribusi Kategori</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[{l:'Pekerjaan',e:'💼'},{l:'Pribadi',e:'🏠'},{l:'Belajar',e:'📚'},{l:'Kesehatan',e:'❤️'}].map(({l,e})=>(
+                          <div key={l} className="bg-slate-800 border border-slate-700/50 rounded-xl p-2 flex items-center gap-2">
+                            <span className="text-sm shrink-0">{e}</span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[8px] font-bold uppercase tracking-wider text-slate-400 truncate leading-none mb-0.5">{l}</p>
+                              <p className="text-xs font-extrabold text-blue-400 leading-none">{tasks.filter(t=>t.category===l).length}</p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 rounded-3xl border border-blue-100 p-4 flex gap-3">
+                  {/* Info Banner */}
+                  <div className="bg-blue-50 rounded-3xl border border-blue-100 p-3.5 flex gap-2.5 shrink-0">
                     <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-blue-700 leading-relaxed">
+                    <p className="text-[10px] text-blue-700 leading-relaxed">
                       Gunakan tombol <strong>Impor</strong> pada panel kalender untuk menyalin acara Google Calendar menjadi tugas secara otomatis.
                     </p>
                   </div>
@@ -625,10 +618,7 @@ export default function App() {
               onAddTask={(date) => {
                 setEditingTask(null);
                 setSelectedDate(date);
-                setActiveTab('dashboard');
-                setTimeout(() => {
-                  document.getElementById('task-form-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
+                setIsFormOpen(true);
               }}
             />
           )}
@@ -642,10 +632,7 @@ export default function App() {
               onDelete={handleDeleteClick}
               onAddTask={() => {
                 setEditingTask(null);
-                setActiveTab('dashboard');
-                setTimeout(() => {
-                  document.getElementById('task-form-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
+                setIsFormOpen(true);
               }}
             />
           )}
@@ -657,6 +644,23 @@ export default function App() {
 
         </div>
       </main>
+
+      {/* Modal Task Form */}
+      {isFormOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+          {/* Modal backdrop to detect clicks outside */}
+          <div className="fixed inset-0" onClick={() => setIsFormOpen(false)} />
+          
+          <div className="relative w-full max-w-md transform transition-all">
+            <TaskForm 
+              initialTask={editingTask} 
+              onSubmit={handleCreateOrUpdateTask} 
+              onCancel={() => setIsFormOpen(false)} 
+              isGoogleSignedIn={!!token} 
+            />
+          </div>
+        </div>
+      )}
 
       <ConfirmationDialog
         isOpen={confirmState.isOpen} title={confirmState.title} message={confirmState.message}

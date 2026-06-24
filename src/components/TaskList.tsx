@@ -51,9 +51,9 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
   const selectClass = "bg-transparent font-bold text-blue-600 focus:outline-none cursor-pointer text-xs";
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col space-y-4 overflow-hidden">
       {/* Search & filters */}
-      <div className="space-y-3">
+      <div className="space-y-3 shrink-0">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input type="text" placeholder="Cari tugas..." value={search} onChange={e => setSearch(e.target.value)}
@@ -75,22 +75,22 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
         </div>
       </div>
 
-      {/* Empty state */}
-      {filtered.length === 0 ? (
-        <div className="py-16 text-center">
-          <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Calendar className="h-6 w-6 text-slate-300" />
+      {/* Scrollable list content */}
+      <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
+        {filtered.length === 0 ? (
+          <div className="py-16 text-center">
+            <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Calendar className="h-6 w-6 text-slate-300" />
+            </div>
+            <p className="text-sm font-bold text-slate-600">Tidak Ada Tugas</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+              {search || statusFilter !== 'Semua' || catFilter !== 'Semua' || dateFilter !== 'Semua'
+                ? 'Tidak ada tugas yang cocok dengan filter. Coba ubah filter pencarian.'
+                : 'Belum ada tugas. Buat tugas baru dengan tombol di atas!'}
+            </p>
           </div>
-          <p className="text-sm font-bold text-slate-600">Tidak Ada Tugas</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-            {search || statusFilter !== 'Semua' || catFilter !== 'Semua' || dateFilter !== 'Semua'
-              ? 'Tidak ada tugas yang cocok dengan filter. Coba ubah filter pencarian.'
-              : 'Belum ada tugas. Buat tugas baru dengan tombol di atas!'}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-2.5">
-          {filtered.map(task => {
+        ) : (
+          filtered.map(task => {
             const style = CATEGORY_STYLES[task.category] || CATEGORY_STYLES.Lainnya;
             return (
               <div key={task.id}
@@ -160,9 +160,9 @@ export default function TaskList({ tasks, onToggleComplete, onEdit, onDelete, is
                 </div>
               </div>
             );
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
     </div>
   );
 }

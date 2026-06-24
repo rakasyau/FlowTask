@@ -121,9 +121,9 @@ export default function CalendarPanel({
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-xl shadow-blue-200/50 space-y-4">
+    <div className="h-full flex flex-col bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-xl shadow-blue-200/50 space-y-4 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <div className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)] animate-pulse" />
@@ -139,7 +139,7 @@ export default function CalendarPanel({
 
       {/* Error state with reconnect option */}
       {error ? (
-        <div className="bg-white/10 border border-white/20 rounded-2xl p-4 space-y-3">
+        <div className="bg-white/10 border border-white/20 rounded-2xl p-4 space-y-3 shrink-0">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" />
             <div>
@@ -168,18 +168,18 @@ export default function CalendarPanel({
           )}
         </div>
       ) : loading ? (
-        <div className="py-10 text-center">
+        <div className="py-10 text-center flex-1 flex flex-col justify-center">
           <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent mx-auto mb-2" />
           <p className="text-xs text-blue-200">Memuat jadwal...</p>
         </div>
       ) : events.length === 0 ? (
-        <div className="py-8 text-center bg-white/10 rounded-2xl border border-dashed border-white/20">
+        <div className="py-8 text-center bg-white/10 rounded-2xl border border-dashed border-white/20 flex-1 flex flex-col justify-center">
           <Calendar className="h-7 w-7 text-blue-200 mx-auto mb-2" />
           <p className="text-xs font-bold">Tidak Ada Acara</p>
           <p className="text-[10px] text-blue-300 mt-0.5">Tidak ada jadwal untuk tanggal ini.</p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-72 overflow-y-auto pr-0.5">
+        <div className="space-y-2 flex-1 overflow-y-auto pr-0.5">
           {events.map((event) => (
             <div key={event.id}
               className="group p-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 transition-all">
